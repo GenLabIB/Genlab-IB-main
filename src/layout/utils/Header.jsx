@@ -140,7 +140,7 @@ const Header = () => {
             <div className={headerStyles.navbar_links_Image}>
               <Image
                 src={logo.src}
-                alt="Logo"
+                alt="Genlab IB logo"
                 onClick={() => window.scrollTo(0, 0)}
                 width={100} // Set width
                 height={100} // Set height
