@@ -4,6 +4,9 @@ export default function Document() {
   return (
     <Html>
       <Head>
+
+      <meta name="google-site-verification" content="R2cuLGxM1RZsvaPBcVFuZfS0rh33eyMlkFdFHDfB4S0" />
+      
         <link
           href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700&display=swap"
           rel="stylesheet"
