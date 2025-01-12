@@ -3,6 +3,7 @@ import { Fragment } from 'react'
 import Home from './home'
 import Head from 'next/head'
 
+
 const Alo = () => {
   return (
     <Fragment>
@@ -18,6 +19,8 @@ const Alo = () => {
         <meta property="og:site_name" content="GenLab IB" />
         <meta property="og:locale" content="en_US" />
         <meta property="og:type" content="website" />
+
+        <link rel="icon" href="/assets/favicon.png" />
       </Head>
       <Home />
     </Fragment>
