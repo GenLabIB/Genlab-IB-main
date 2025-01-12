@@ -25,7 +25,15 @@ html {
 ::-webkit-scrollbar {
   display: none;
 }
+.custom-phone-input-container .flag.in {
+  background-image: url('/assets/Flag.png') !important; /* India flag */
+  background-size: cover;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
 
+ 
+ 
+}
 /* ::-webkit-scrollbar {
   width: 10px;
   height: 10px;

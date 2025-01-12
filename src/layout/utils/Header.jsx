@@ -1,11 +1,6 @@
-import React, {
-  useRef,
-  useEffect,
-  Fragment,
-  useContext,
-  useState,
-} from "react";
+import React, { useRef, useEffect, Fragment, useContext, useState } from "react";
 import logo from "@/assets/logo/Logo2.png";
+
 import headerStyles from "@/layout/utils/Header.module.css";
 import Modal from "react-responsive-modal";
 import "react-responsive-modal/styles.css";
@@ -25,10 +20,12 @@ const Header = () => {
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
 
   const [nameError, setNameError] = useState("");
   const [mobileError, setMobileError] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [messageError, setMessageError] = useState("");
   const [isFocused, setIsFocused] = useState(false);
 
   const toggleMenu = () => {
@@ -78,45 +75,72 @@ const Header = () => {
       setEmailError("");
     }
 
+    if (message.trim() === "") {
+      setMessageError("Please enter a message.");
+      isValid = false;
+    } else {
+      setMessageError("");
+    }
+
     return isValid;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      const templateParams = {
+      const formData = {
         name,
-        mobile,
         email,
+        mobile,
+        message,
       };
-
-      emailjs
-        .send(
-          "service_twjdkap", // Replace with your EmailJS service ID
-          "template_veofnfx", // Replace with your EmailJS template ID
-          templateParams,
-          "5Czk5Gi-bcnN23oyr" // Replace with your EmailJS user ID
-        )
-        .then(
-          (response) => {
-            toast.success("Form submitted successfully!");
-            closeModal();
-          },
-          (error) => {
-            toast.error("Failed to send the form. Please try again.");
+  
+      try {
+        // Send email using EmailJS
+        const emailResult = await emailjs.send(
+          process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+          process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
+          formData,
+          process.env.NEXT_PUBLIC_EMAILJS_USER_ID
+        );
+  
+        console.log("EmailJS Result:", emailResult);
+  
+        // Send data to Google Sheets
+        const sheetResponse = await fetch(
+          process.env.NEXT_PUBLIC_GOOGLE_SHEETS_WEBHOOK,
+          {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
           }
         );
+  
+        console.log("Google Sheets Response:", sheetResponse);
+  
+        toast.success("Form submitted successfully!");
+        closeModal();
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        toast.error("Failed to send the form. Please try again.");
+      }
     }
   };
+  
 
   // Reset form fields when closing the modal
   const closeModal = () => {
     setName("");
     setMobile("");
     setEmail("");
+    setMessage("");
     setNameError("");
     setMobileError("");
     setEmailError("");
+    setMessageError("");
     close();
   };
 
@@ -140,10 +164,10 @@ const Header = () => {
             <div className={headerStyles.navbar_links_Image}>
               <Image
                 src={logo.src}
-                alt="Genlab IB logo"
+                alt="genlab logo"
                 onClick={() => window.scrollTo(0, 0)}
-                width={100} // Set width
-                height={100} // Set height
+                width={100}
+                height={100}
                 layout="intrinsic"
               />
             </div>
@@ -172,7 +196,7 @@ const Header = () => {
           </button>
         </div>
       </div>
-      <Modal open={modalOpen} onClose={closeModal} showCloseIcon={false}  focusTrapped={false}  center>
+      <Modal open={modalOpen} onClose={closeModal} showCloseIcon={false} focusTrapped={false} center>
         <div className={headerStyles.apply_now_modal}>
           <div className={headerStyles.apply_now_modal_container2}>
             <h3>
@@ -202,7 +226,6 @@ const Header = () => {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                
               />
               <label
                 className={`${headerStyles.floatingLabel2} ${
@@ -211,7 +234,6 @@ const Header = () => {
               >
                 Enter your name
               </label>
-
               <p
                 className={headerStyles.error}
                 style={{ display: nameError ? "block" : "none" }}
@@ -225,7 +247,6 @@ const Header = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-              
               />
               <label
                 className={`${headerStyles.floatingLabel2} ${
@@ -234,7 +255,6 @@ const Header = () => {
               >
                 Enter your email
               </label>
-
               <p
                 className={headerStyles.error}
                 style={{ display: emailError ? "block" : "none" }}
@@ -249,19 +269,20 @@ const Header = () => {
                   country={"in"}
                   value={mobile}
                   onChange={(phone) => setMobile(phone)}
-                  onFocus={() => setIsFocused(true)} // Set focus state
-                  onBlur={() => setIsFocused(false)} // Reset focus state
-                  placeholder="" // Disable default placeholder
-                  containerClass={headerStyles.customPhoneInputContainer}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
+                  placeholder=""
+                  containerClass="custom-phone-input-container"
                   inputClass={headerStyles.customPhoneInput}
                   buttonClass={headerStyles.customPhoneInputButton}
                   dropdownStyle={{
-                    maxHeight: "200px",
+                    maxHeight: "148px",
                     overflowY: "auto",
                     WebkitOverflowScrolling: "touch",
                   }}
+                  
+                 
                 />
-                {/* Floating label */}
                 <label
                   className={`${headerStyles.floatingLabel} ${
                     mobile || isFocused ? headerStyles.filled : ""
@@ -270,12 +291,32 @@ const Header = () => {
                   Enter your phone number
                 </label>
               </div>
-              {/* Error message */}
               <p
                 className={headerStyles.error}
                 style={{ display: mobileError ? "block" : "none" }}
               >
                 {mobileError}
+              </p>
+            </div>
+
+            <div className={headerStyles.apply_now_modal_container_item}>
+              <input
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows="4"
+              />
+              <label
+                className={`${headerStyles.floatingLabel2} ${
+                  message ? headerStyles.filled : ""
+                }`}
+              >
+                Write a message
+              </label>
+              <p
+                className={headerStyles.error}
+                style={{ display: messageError ? "block" : "none" }}
+              >
+                {messageError}
               </p>
             </div>
 
@@ -302,3 +343,4 @@ const Header = () => {
 };
 
 export default Header;
+
